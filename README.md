@@ -38,11 +38,13 @@ The **Google Photos Clone** offers a seamless, cloud-native experience for manag
 ## 🚀 Key Features
 
 ### 🔐 Authentication & Session Management
+
 - **User Registration & Login**: BCrypt password hashing (strength 12) with JWT authentication.
 - **Stateless Tokens**: Short-lived Access Tokens paired with Refresh Tokens for seamless session renewal.
 - **Protected Routes**: Middleware guard on Next.js frontend and Spring Security filters on the backend.
 
 ### 🖼️ Photo & Media Management
+
 - **Direct & Multipart Uploads**: Upload JPEG, PNG, WebP, GIF, HEIC images directly to user-isolated Cloud Storage.
 - **Grid Library View**: Dynamic responsive grid displaying high-res thumbnails with date-based sorting.
 - **Status Workflows**: Move photos between **ACTIVE**, **ARCHIVE**, and **TRASH** states.
@@ -50,6 +52,7 @@ The **Google Photos Clone** offers a seamless, cloud-native experience for manag
 - **Storage Analytics**: Track overall storage consumption, photo counts, and cloud bandwidth.
 
 ### 🤖 AI Image Studio (ImageKit AI Integration)
+
 - **Background Removal (`REMOVE_BACKGROUND`)**: Automatically isolate subjects and eliminate backgrounds.
 - **Background & Drop Shadow (`BACKGROUND_AND_SHADOW`)**: Remove background while adding a natural drop shadow.
 - **Prompt-Based Background Change (`CHANGE_BACKGROUND`)**: Replace backgrounds using text prompts.
@@ -60,11 +63,13 @@ The **Google Photos Clone** offers a seamless, cloud-native experience for manag
 - **Live Preview & Non-Destructive Saving**: Preview transformations instantly before saving them as new derived photos.
 
 ### 📁 Custom Albums & Collections
+
 - **Album Management**: Create, update title, list, and delete custom albums.
 - **Cover Photo Resolution**: Dynamic assignment of album cover thumbnails.
 - **Photo Association**: Add/remove multiple photos to/from albums with auto-computed item counts.
 
 ### ☁️ Cloud Library Import
+
 - **Asset Synchronization**: Discover and import existing assets directly from configured ImageKit folders into user libraries without re-uploading.
 
 ---
@@ -106,38 +111,42 @@ flowchart TD
 ## 🛠️ Tech Stack
 
 ### Backend Technologies
-| Layer | Technology |
-|---|---|
-| **Language & Runtime** | Java 21 |
-| **Framework** | Spring Boot 3.4+ / Spring MVC |
-| **Security** | Spring Security 6, JJWT 0.12.6, BCrypt |
-| **Data Access** | Spring Data JPA, Hibernate |
-| **Database** | PostgreSQL 16 (via Docker) |
-| **Cloud Storage & AI** | ImageKit Java SDK (v3.4.0) |
-| **Utilities** | Lombok, Dotenv-Java, Jakarta Validation |
-| **Build Tool** | Apache Maven |
+
+| Layer                  | Technology                              |
+| ---------------------- | --------------------------------------- |
+| **Language & Runtime** | Java 21                                 |
+| **Framework**          | Spring Boot 3.4+ / Spring MVC           |
+| **Security**           | Spring Security 6, JJWT 0.12.6, BCrypt  |
+| **Data Access**        | Spring Data JPA, Hibernate              |
+| **Database**           | PostgreSQL 16 (via Docker)              |
+| **Cloud Storage & AI** | ImageKit Java SDK (v3.4.0)              |
+| **Utilities**          | Lombok, Dotenv-Java, Jakarta Validation |
+| **Build Tool**         | Apache Maven                            |
 
 ### Frontend Technologies
-| Layer | Technology |
-|---|---|
-| **Framework** | Next.js 16 (App Router), React 19 |
-| **Language** | TypeScript 5 |
-| **Styling** | Tailwind CSS v4, Lucide Icons, Remixicon |
-| **UI Components** | Shadcn UI, Base UI, Sonner Toasts |
-| **State & Data Fetching** | Zustand, TanStack React Query v5 |
-| **Forms & Validation** | React Hook Form, Zod |
+
+| Layer                     | Technology                               |
+| ------------------------- | ---------------------------------------- |
+| **Framework**             | Next.js 16 (App Router), React 19        |
+| **Language**              | TypeScript 5                             |
+| **Styling**               | Tailwind CSS v4, Lucide Icons, Remixicon |
+| **UI Components**         | Shadcn UI, Base UI, Sonner Toasts        |
+| **State & Data Fetching** | Zustand, TanStack React Query v5         |
+| **Forms & Validation**    | React Hook Form, Zod                     |
 
 ---
 
 ## 💡 Deep-Dive: How The Project Works
 
 ### 1. Authentication & Security
+
 1. When a user registers or logs in (`/api/auth/register`, `/api/auth/login`), the backend validates credentials and issues a **JWT Access Token** (short TTL) along with a **Refresh Token** stored in PostgreSQL.
 2. The frontend stores tokens in client memory via `Zustand`.
 3. Every outgoing API call attaches `Authorization: Bearer <token>`.
 4. Spring Security's `JwtAuthenticationFilter` intercepts requests, validates the signature, extracts the user details, and sets the Security Context.
 
 ### 2. Media Storage & ImageKit Integration
+
 1. Files uploaded through the UI are posted to `/api/photos/upload`.
 2. The `PhotoService` validates allowed MIME types (`JPEG`, `PNG`, `WebP`, `GIF`, `HEIC`).
 3. `ImageKitService` streams the bytes to ImageKit Cloud under a user-isolated folder path (`/users/{userId}/`).
@@ -145,6 +154,7 @@ flowchart TD
 5. The backend stores metadata (dimensions, file size, MIME type, user reference, status) in the PostgreSQL `photos` table.
 
 ### 3. AI Transformation Pipeline
+
 1. When editing a photo in the AI Studio, the frontend sends transformation parameters (e.g., type, prompt, width/height, object focus).
 2. `AiTransformService` maps request parameters to ImageKit URL transformation parameters (e.g., `e-bgremove`, `bg-genfill-prompt-...`, `fo-auto`).
 3. **Preview Mode**: Returns a transformation URL for immediate visual confirmation in the UI.
@@ -155,6 +165,7 @@ flowchart TD
    - A derived `Photo` record is saved in the database referencing its parent photo (`parentPhotoId`) and transformation type (`aiTransformType`).
 
 ### 4. Photo Lifecycle & State Management
+
 - **ACTIVE**: Visible in main photo feed and library.
 - **ARCHIVE**: Hidden from main stream, accessible under Archive tab.
 - **TRASH**: Soft-deleted photos stamped with `deletedAt`.
@@ -199,11 +210,11 @@ google-photos-springboot-clone/
 
 Copy `backend/.env.example` to `backend/.env` and update the values:
 
-```ini
+````ini
 # Database Connection (Default PostgreSQL docker port: 5434)
-DB_URL=jdbc:postgresql://localhost:5434/google_photos
-DB_USERNAME=postgres
-DB_PASSWORD=postgres
+DB_URL=your_DB_URL_here
+DB_USERNAME=your_DB_USERNAME_here
+DB_PASSWORD=your_DB_PASSWORD_here
 
 # Security & CORS
 CORS_ORIGIN=http://localhost:3000
@@ -216,10 +227,9 @@ MAX_FILE_SIZE=25MB
 MAX_REQUEST_SIZE=30MB
 
 # ImageKit Configuration (Get credentials from https://imagekit.io)
-IMAGEKIT_PUBLIC_KEY=public_your_key_here
-IMAGEKIT_PRIVATE_KEY=private_your_key_here
-IMAGEKIT_URL_ENDPOINT=https://ik.imagekit.io/your_imagekit_id
-```
+IMAGEKIT_PUBLIC_KEY=your_public_key_here
+IMAGEKIT_PRIVATE_KEY=your_private_key_here
+IMAGEKIT_URL_ENDPOINT=url_endpoint_here
 
 ### Frontend Configuration (`client/.env.local`)
 
@@ -227,7 +237,7 @@ Create `.env.local` inside the `client/` directory:
 
 ```ini
 NEXT_PUBLIC_API_URL=http://localhost:8080/api
-```
+````
 
 ---
 
@@ -236,11 +246,13 @@ NEXT_PUBLIC_API_URL=http://localhost:8080/api
 Follow these steps to set up and run the application locally.
 
 ### Step 1: Start PostgreSQL Database
+
 Run the pre-configured PostgreSQL container via Docker Compose:
 
 ```bash
 docker-compose up -d
 ```
+
 > Database runs on port `5434`, default database `google_photos`, user `postgres`, password `postgres`.
 
 ### Step 2: Run the Spring Boot Backend
@@ -256,6 +268,7 @@ cd backend
 # On Linux / macOS:
 ./mvnw spring-boot:run
 ```
+
 > Backend runs at `http://localhost:8080`. Database tables will auto-generate on initial run.
 
 ### Step 3: Run the Next.js Frontend
@@ -271,6 +284,7 @@ npm install
 # Start development server
 npm run dev
 ```
+
 > Frontend will be available at `http://localhost:3000`.
 
 ---
@@ -278,50 +292,55 @@ npm run dev
 ## 📑 API Reference Endpoints
 
 ### 🔑 Authentication (`/api/auth`)
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `POST` | `/api/auth/register` | Register new user account | ❌ No |
-| `POST` | `/api/auth/login` | Authenticate user & get JWT tokens | ❌ No |
-| `POST` | `/api/auth/refresh` | Refresh expired access token | ❌ No |
-| `POST` | `/api/auth/logout` | Revoke refresh token | ❌ No |
-| `GET` | `/api/auth/me` | Fetch authenticated user profile | ✅ Yes |
+
+| Method | Endpoint             | Description                        | Auth Required |
+| ------ | -------------------- | ---------------------------------- | ------------- |
+| `POST` | `/api/auth/register` | Register new user account          | ❌ No         |
+| `POST` | `/api/auth/login`    | Authenticate user & get JWT tokens | ❌ No         |
+| `POST` | `/api/auth/refresh`  | Refresh expired access token       | ❌ No         |
+| `POST` | `/api/auth/logout`   | Revoke refresh token               | ❌ No         |
+| `GET`  | `/api/auth/me`       | Fetch authenticated user profile   | ✅ Yes        |
 
 ### 📸 Photos (`/api/photos`)
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `GET` | `/api/photos` | List user photos (supports status `ACTIVE`, `ARCHIVE`, `TRASH`) | ✅ Yes |
-| `GET` | `/api/photos/{id}` | Get photo details by ID | ✅ Yes |
-| `POST` | `/api/photos/upload` | Upload multipart image file to ImageKit | ✅ Yes |
-| `POST` | `/api/photos/archive` | Move batch of photos to archive | ✅ Yes |
-| `POST` | `/api/photos/trash` | Move batch of photos to trash | ✅ Yes |
-| `POST` | `/api/photos/restore` | Restore batch of photos from archive/trash | ✅ Yes |
-| `POST` | `/api/photos/delete-permanent` | Permanently delete photos from trash & cloud storage | ✅ Yes |
-| `DELETE` | `/api/photos/{id}` | Permanently delete single photo | ✅ Yes |
+
+| Method   | Endpoint                       | Description                                                     | Auth Required |
+| -------- | ------------------------------ | --------------------------------------------------------------- | ------------- |
+| `GET`    | `/api/photos`                  | List user photos (supports status `ACTIVE`, `ARCHIVE`, `TRASH`) | ✅ Yes        |
+| `GET`    | `/api/photos/{id}`             | Get photo details by ID                                         | ✅ Yes        |
+| `POST`   | `/api/photos/upload`           | Upload multipart image file to ImageKit                         | ✅ Yes        |
+| `POST`   | `/api/photos/archive`          | Move batch of photos to archive                                 | ✅ Yes        |
+| `POST`   | `/api/photos/trash`            | Move batch of photos to trash                                   | ✅ Yes        |
+| `POST`   | `/api/photos/restore`          | Restore batch of photos from archive/trash                      | ✅ Yes        |
+| `POST`   | `/api/photos/delete-permanent` | Permanently delete photos from trash & cloud storage            | ✅ Yes        |
+| `DELETE` | `/api/photos/{id}`             | Permanently delete single photo                                 | ✅ Yes        |
 
 ### 🤖 AI Transformations (`/api/photos/{photoId}/ai`)
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `POST` | `/api/photos/{photoId}/ai/preview` | Generate live preview URL for AI edit | ✅ Yes |
-| `POST` | `/api/photos/{photoId}/ai/apply` | Apply AI edit, upload & save as new derived photo | ✅ Yes |
+
+| Method | Endpoint                           | Description                                       | Auth Required |
+| ------ | ---------------------------------- | ------------------------------------------------- | ------------- |
+| `POST` | `/api/photos/{photoId}/ai/preview` | Generate live preview URL for AI edit             | ✅ Yes        |
+| `POST` | `/api/photos/{photoId}/ai/apply`   | Apply AI edit, upload & save as new derived photo | ✅ Yes        |
 
 ### 📁 Albums (`/api/albums`)
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `GET` | `/api/albums` | List all user albums | ✅ Yes |
-| `POST` | `/api/albums` | Create a new album | ✅ Yes |
-| `GET` | `/api/albums/{id}` | Get album by ID | ✅ Yes |
-| `GET` | `/api/albums/{id}/photos` | Paginated photos inside album | ✅ Yes |
-| `PATCH` | `/api/albums/{id}` | Update album details | ✅ Yes |
-| `DELETE` | `/api/albums/{id}` | Delete album | ✅ Yes |
-| `POST` | `/api/albums/{id}/photos` | Add photos to album | ✅ Yes |
-| `DELETE` | `/api/albums/{id}/photos/{photoId}` | Remove photo from album | ✅ Yes |
+
+| Method   | Endpoint                            | Description                   | Auth Required |
+| -------- | ----------------------------------- | ----------------------------- | ------------- |
+| `GET`    | `/api/albums`                       | List all user albums          | ✅ Yes        |
+| `POST`   | `/api/albums`                       | Create a new album            | ✅ Yes        |
+| `GET`    | `/api/albums/{id}`                  | Get album by ID               | ✅ Yes        |
+| `GET`    | `/api/albums/{id}/photos`           | Paginated photos inside album | ✅ Yes        |
+| `PATCH`  | `/api/albums/{id}`                  | Update album details          | ✅ Yes        |
+| `DELETE` | `/api/albums/{id}`                  | Delete album                  | ✅ Yes        |
+| `POST`   | `/api/albums/{id}/photos`           | Add photos to album           | ✅ Yes        |
+| `DELETE` | `/api/albums/{id}/photos/{photoId}` | Remove photo from album       | ✅ Yes        |
 
 ### 📊 Library & Storage (`/api/library`)
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `GET` | `/api/library/storage` | Get storage analytics and item metrics | ✅ Yes |
-| `GET` | `/api/library/imagekit-assets` | List unimported assets in ImageKit folder | ✅ Yes |
-| `POST` | `/api/library/import` | Batch import ImageKit assets into user library | ✅ Yes |
+
+| Method | Endpoint                       | Description                                    | Auth Required |
+| ------ | ------------------------------ | ---------------------------------------------- | ------------- |
+| `GET`  | `/api/library/storage`         | Get storage analytics and item metrics         | ✅ Yes        |
+| `GET`  | `/api/library/imagekit-assets` | List unimported assets in ImageKit folder      | ✅ Yes        |
+| `POST` | `/api/library/import`          | Batch import ImageKit assets into user library | ✅ Yes        |
 
 ---
 
